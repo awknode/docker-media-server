@@ -1,0 +1,164 @@
+version: "3.6"
+services:
+  plex:
+    container_name: plex
+    image: ghcr.io/linuxserver/plex
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - VERSION=docker
+#      - NVIDIA_VISIBLE_DEVICES=all
+#      - NVIDIA_DRIVER_CAPABILITIES=all
+      - PLEX_CLAIM=lolno
+#    devices:
+#      - /dev/nvidia0
+#      - /dev/nvidia-uvm
+#      - /dev/nvidia-uvm-tools
+#      - /dev/nvidiactl
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - capabilities:
+#              - gpu
+#              - utility
+#              - compute
+    volumes:
+      - ~/Projects/plex:/config
+      - /vz:/vz
+      - /dock/1:/dock1
+      - /dock/2:/dock2
+      - /dock/3:/dock3
+      - /dock/4:/dock4
+      - /dev/shm/plex:/plexcache
+    restart: always
+
+#  cuda:
+#    image: nvidia/cuda:11.1-base
+#    command: nvidia-smi
+#    runtime: nvidia
+#    devices:
+#      - /dev/nvidia0
+#      - /dev/nvidia-uvm
+#      - /dev/nvidia-uvm-tools
+#      - /dev/nvidiactl
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#          - driver: nvidia
+#            count: 1
+#            capabilities: [gpu, utility, compute]
+
+#  vpn:
+#    container_name: vpn
+#    image: dperson/openvpn-client:latest
+#    cap_add:
+#      - net_admin # required to modify network interfaces
+#    restart: unless-stopped
+#    volumes:
+#      - /dev/net:/dev/net:z # tun device
+#      - ~/Projects/plex/config/vpn:/vpn # OpenVPN configuration
+#    security_opt:
+#      - label:disable
+#    ports:
+#      - 8112:8112 # port for deluge web UI to be reachable from local network
+#    command: '-f "" -r 10.99.99.0/24' # enable firewall and route local network traffic
+
+  wireguard:
+    image: ghcr.io/linuxserver/wireguard
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - DEBUG=1
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+#      - SERVERURL= #optional
+#      - SERVERPORT= #optional
+#      - PEERS=1 #optional
+#      - PEERDNS=auto #optional
+#      - INTERNAL_SUBNET= #optional
+#      - ALLOWEDIPS= #optional
+    volumes:
+      - ~/Projects/plex/config/wireguard/wg0.conf:/config/wg0.conf
+      - /lib/modules:/lib/modules
+    ports:
+      - 8112:8112
+      - 51802:51802/udp
+    networks:
+      mediabr:
+        ipv4_address: 10.10.10.10
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+    restart: unless-stopped
+
+
+  deluge:
+    container_name: deluge
+    image: linuxserver/deluge:latest
+    restart: always
+    network_mode: service:wireguard # run on the vpn network
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /dock/4/down:/downloads # downloads folder
+      - ~/Projects/plex/config/deluge:/config # config files
+
+  jackett:
+    container_name: jackett
+    image: linuxserver/jackett:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ~/Projects/plex/downloads/torrent-blackhole:/downloads # place where to put .torrent files for manual download
+      - ~/Projects/plex/config/jackett:/config # config files
+
+  sonarr:
+    container_name: sonarr
+    image: linuxserver/sonarr:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ~/Projects/Plex/config/sonarr:/config # config files
+      - /down/4/TV3:/tv # tv shows folder
+      - /down/4/down:/downloads # download folder
+
+  radarr:
+    container_name: radarr
+    image: linuxserver/radarr:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ~/Projects/plex/config/radarr:/config # config files
+      - /down/4/Movies4:/movies # movies folder
+      - /down/4/down:/downloads # download folder
+
+networks:
+  mediabr:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.10.10.0/24
+         gateway: 10.10.10.1
