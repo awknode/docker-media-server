@@ -6,5 +6,4 @@ Follow the https://github.com/sebgl/htpc-download-box#readme instructions on get
 gpu.sh will brute force gpu passthrough with the plex server. you'll want to mount it and run 
 
 <code>docker exec -it plex /config/gpu.sh</code>
-
 (as i do) or you can modify it to your liking.
