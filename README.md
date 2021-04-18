@@ -8,4 +8,6 @@ gpu.sh will brute force gpu passthrough with the plex server. you'll want to mou
 <code>docker exec -it plex /config/gpu.sh</code>
 (as i do) or you can modify it to your liking.
 
-This is great for a LAN if you have unlimited data, as all your data is encrypted with wireguard and the wireguard gateway is only accessed by the gateway which only deluge is set to as you'll see in the .yml file (refer to networks: service:wireguard). You could even route yourself through this traffic, a simple change of configuration with your gateway and networking configurations. I'm willing to help if you need it, let me know. (with any part of this setup)
+This is great for a LAN if you have unlimited data, as all your data is encrypted with wireguard and the wireguard gateway is only accessed by the gateway which only deluge is set to as you'll see in the .yml file (refer to networks: service:wireguard). 
+
+You could even route yourself through this traffic, a simple change of configuration with your gateway and networking configurations. I'm willing to help if you need it, let me know. (with any part of this setup)
