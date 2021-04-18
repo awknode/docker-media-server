@@ -28,9 +28,6 @@ services:
       - ~/Projects/plex:/config
       - /vz:/vz
       - /dock/1:/dock1
-      - /dock/2:/dock2
-      - /dock/3:/dock3
-      - /dock/4:/dock4
       - /dev/shm/plex:/plexcache
     restart: always
 
@@ -137,8 +134,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ~/Projects/Plex/config/sonarr:/config # config files
-      - /down/4/TV3:/tv # tv shows folder
-      - /down/4/down:/downloads # download folder
+      - /dock/4/TV:/tv # tv shows folder
+      - /dock/4/down:/downloads # download folder
 
   radarr:
     container_name: radarr
@@ -152,8 +149,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ~/Projects/plex/config/radarr:/config # config files
-      - /down/4/Movies4:/movies # movies folder
-      - /down/4/down:/downloads # download folder
+      - /dock/4/Movies:/movies # movies folder
+      - /dock/4/down:/downloads # download folder
 
 networks:
   mediabr:
