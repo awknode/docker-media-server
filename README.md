@@ -18,5 +18,6 @@ In short, once this is up and running, just do the following:
 3. Deluge -- Load http://localhost:8112
 4. Sonarr -- Load http://localhost:8989
 5. Radarr -- Load http://localhost:7878
+6. Plex installation help -- Load https://support.plex.tv/articles/200288586-installation/
 
 gl ; hf
