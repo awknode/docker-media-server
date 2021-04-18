@@ -1,5 +1,5 @@
 # docker-media-server
-Docker Plex Server / Wireguard Client / Deluge (seedbox hosted by wireguard container [whatever VPN provider you want, just make sure there's a wireguard configuration file]) I currently just use my own off-shore dedicated server for VPN and other things) / Jackett / Radarr / Sonarr / NVIDIA GPU Passthrough (optional, #commented out) in one .yml file
+Docker Plex Server / Wireguard Client / Deluge (seedbox hosted by wireguard container [whatever VPN provider you want, just make sure there's a wireguard configuration file], I use my own dedi) / Jackett / Radarr / Sonarr / NVIDIA GPU Passthrough (optional, #commented out) in one .yml file
 
 Follow the https://github.com/sebgl/htpc-download-box#readme instructions on getting the basics setup, he did a great job with documentation, why damage a good thing.
 
