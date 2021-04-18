@@ -1,6 +1,15 @@
 # docker-media-server
 Docker Plex Server / Wireguard Client / Deluge (seedbox hosted by wireguard container [whatever VPN provider you want, just make sure there's a wireguard configuration file], I use my own dedi) / Jackett / Radarr / Sonarr / NVIDIA GPU Passthrough (optional, #commented out) in one .yml file
 
+For GPU passthrough, requirements are as needed at minimum:
+1. proper nvidia drivers installed
+2. nvidia-docker installed
+3. nvidia-container-toolkit (cuda)
+4. nvidia-container-runtime (to correct runtime errors with OCI)
+5. make sure docker is running and working
+6. make sure your graphics card is gtx 960 or later
+7. make sure you can run nvidia-smi inside your docker container, <code>docker exec -it plex nvidia-smi</code> to ensure you see the Drivers installed and CUDA version, as well as more information.
+
 Follow the https://github.com/sebgl/htpc-download-box#readme instructions on getting the basics setup, he did a great job with documentation, why damage a good thing.
 
 gpu.sh will brute force gpu passthrough with the plex server. you'll want to mount it and run 
