@@ -25,10 +25,9 @@ services:
 #              - utility
 #              - compute
     volumes:
-      - ~/Projects/plex:/config
-      - /vz:/vz
-      - /dock/1:/dock1
-      - /dev/shm/plex:/plexcache
+      - ~/Projects/plex:/config # config file
+      - /dock/1:/dock1 # movies
+      - /dev/shm/plex:/plexcache # plex cache best done in /dev/shm
     restart: always
 
 #  cuda:
@@ -151,6 +150,18 @@ services:
       - ~/Projects/plex/config/radarr:/config # config files
       - /dock/4/Movies:/movies # movies folder
       - /dock/4/down:/downloads # download folder
+
+  organizr:
+    image: linuxserver/organizr
+    container_name: organizr
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ~/Projects/plex/config:/config
+    restart: unless-stopped
 
 networks:
   mediabr:
