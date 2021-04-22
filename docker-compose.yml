@@ -163,6 +163,23 @@ services:
       - ~/Projects/plex/config:/config
     restart: unless-stopped
 
+## youtube-dl optional
+  ytdl_material:
+    container_name: ytdl 
+    environment: 
+      - ALLOW_CONFIG_MUTATIONS=true
+    restart: always
+    volumes:
+      - ./appdata:/app/appdata
+      - ./audio:/app/audio
+      - ./video:/app/video
+      - ./subscriptions:/app/subscriptions
+      - ./users:/app/users
+    ports:
+      - "8998:17442"
+    image: tzahi12345/youtubedl-material:latest
+
+
 networks:
   mediabr:
     driver: bridge
