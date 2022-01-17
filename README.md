@@ -27,6 +27,8 @@ In short, once this is up and running, just do the following:
 3. Deluge -- Load http://localhost:8112
 4. Sonarr -- Load http://localhost:8989
 5. Radarr -- Load http://localhost:7878
-6. Plex Media Server installation help -- Load https://support.plex.tv/articles/200288586-installation/
+6. Prowlarr -- Load http://localhost:9696 (replacing Jackett)
+7. Overseerr -- Load http://localhost:5055
+8. Plex Media Server installation help -- Load https://support.plex.tv/articles/200288586-installation/
 
 gl ; hf
