@@ -1,5 +1,5 @@
 # docker-media-server-htpc
-Docker Plex Server / Wireguard Client / Deluge (seedbox hosted by wireguard container [whatever VPN provider you want, just make sure there's a wireguard configuration file], I use my own dedi) / Jackett / Radarr / Sonarr / NVIDIA GPU Passthrough (optional, #commented out) in one .yml file
+Docker Plex Server / Wireguard Client / Deluge) / Prowlarr / Radarr / Sonarr / Overseerr / Organizr / NVIDIA GPU Passthrough (optional, #commented out) in one .yml file
 
 For GPU passthrough, requirements are as needed at minimum:
 1. proper nvidia drivers installed
