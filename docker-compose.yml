@@ -27,8 +27,8 @@ services:
 #              - utility
 #              - compute
     dns:
-      - 10.20.20.20
       - 1.1.1.1
+      - 1.0.0.1
     volumes:
       - ~/Projects/plex:/config
       - /vz:/vz
