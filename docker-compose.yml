@@ -58,35 +58,7 @@ services:
 #            count: 1
 #            capabilities: [gpu, utility, compute]
 #
-#  jellyfin:
-#    image: lscr.io/linuxserver/jellyfin
-#    container_name: jellyfin
-#    environment:
-#      - PUID=1000
-#      - PGID=1000
-#      - TZ=Europe/London
-#      - JELLYFIN_PublishedServerUrl=192.168.0.5 #optional
-#    volumes:
-#      - ./config:/config
-#      - /vz:/vz
-#      - /dock/1:/dock1
-#      - /dock/2:/dock2
-#      - /dock/3:/dock3
-#      - /dock/4:/dock4
-#      - /opt/vc/lib:/opt/vc/lib #optional
-#    ports:
-#      - 8096:8096
-#      - 8920:8920 #optional
-#      - 7359:7359/udp #optional
-#      - 1900:1900/udp #optional
-#    devices:
-#      - /dev/dri:/dev/dri #optional
-#      - /dev/vchiq:/dev/vchiq #optional
-#      - /dev/video10:/dev/video10 #optional
-#      - /dev/video11:/dev/video11 #optional
-#      - /dev/video12:/dev/video12 #optional
-#    restart: unless-stopped
-
+#
 #  vpn:
 #    container_name: vpn
 #    image: dperson/openvpn-client:latest
@@ -123,8 +95,8 @@ services:
       - ./config/wireguard/wg0.conf:/config/wg0.conf
       - /lib/modules:/lib/modules
     dns:
-      - 10.9.0.1
       - 1.1.1.1
+      - 1.0.0.1
     ports:
       - 8112:8112
       - 51802:51802/udp
@@ -141,9 +113,6 @@ services:
     image: ghcr.io/linuxserver/deluge:latest
     restart: always
     network_mode: service:wireguard # run on the vpn network
-#    networks:
-#      mediabr:
-#        ipv4_address: 10.10.10.9
     environment:
       - PUID=1000
       - PGID=1000
@@ -152,20 +121,6 @@ services:
       - ./downloads/torrent-blackhole:/blackhole
       - /dock/4/down:/downloads # downloads folder
       - ./config/deluge:/config # config files
-
-  jackett:
-    container_name: jackett
-    image: ghcr.io/linuxserver/jackett:latest
-    restart: unless-stopped
-    network_mode: host
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ./downloads/torrent-blackhole:/downloads # place where to put .torrent files for manual download
-      - ./config/jackett:/config # config files
 
   sonarr:
     container_name: sonarr
@@ -230,38 +185,6 @@ services:
 #    ports:
 #      - 8081:8081
     restart: unless-stopped
-
-  portainer:
-    image: portainer/portainer-ce
-    container_name: portainer
-#    network_mode: host
-    networks:
-      mediabr:
-        ipv4_address: 10.10.10.100
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
-    ports:
-      - 8000:8000
-      - 9001:9001
-    restart: always
-
-#  grafana:
-#    image: grafana/grafana
-#    container_name: grafana
-#    network_mode: host
-#    networks:
-#      mediabr:
-#        ipv4_address: 10.10.10.200
-#    ports:
-#      - 3000:3000
-#    volumes:
-#      - grafana_data:/data
-#    user: "104"
-
-volumes:
-  portainer_data:
-    name: portainer_data
 
 networks:
   mediabr:
