@@ -23,10 +23,10 @@ You could even route yourself through this traffic, a simple change of configura
 
 In short, once this is up and running, just do the following:
 1. Open up your favorite browser
-2. Jackett -- Load http://localhost:9117
-3. Deluge -- Load http://localhost:8112
-4. Sonarr -- Load http://localhost:8989
-5. Radarr -- Load http://localhost:7878
+2. Deluge -- Load http://localhost:8112
+3. Sonarr -- Load http://localhost:8989
+4. Radarr -- Load http://localhost:7878
+5. Lidarr -- load http://localhost:8686
 6. Prowlarr -- Load http://localhost:9696 (replacing Jackett)
 7. Overseerr -- Load http://localhost:5055
 8. Plex Media Server installation help -- Load https://support.plex.tv/articles/200288586-installation/
