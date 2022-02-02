@@ -172,6 +172,23 @@ services:
       - 9696:9696
     restart: unless-stopped
 
+  lidarr:
+    image: lscr.io/linuxserver/lidarr
+    container_name: lidarr
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ./config:/config
+      - /vz/Music/music:/music
+      - /dock/4/Music2:/music2 #optional
+      - /dock/4/down/lidarr:/downloads #optional
+#    ports:
+#      - 8686:8686
+    restart: unless-stopped
+
   organizr:
     image: organizr/organizr
     container_name: organizr
