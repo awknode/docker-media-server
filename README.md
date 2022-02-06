@@ -23,7 +23,7 @@ You could even route yourself through this traffic, a simple change of configura
 
 In short, once this is up and running, just do the following:
 1. Open up your favorite browser
-2. Deluge -- Load http://localhost:8112
+2. Rtorrent-Flood -- Load http://localhost:3001
 3. Sonarr -- Load http://localhost:8989
 4. Radarr -- Load http://localhost:7878
 5. Lidarr -- load http://localhost:8686
