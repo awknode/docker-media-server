@@ -11,7 +11,7 @@ services:
 #      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 #      - NVIDIA_VISIBLE_DEVICES=all
 #      - NVIDIA_DRIVER_CAPABILITIES=all
-      - PLEX_CLAIM=claim-tvzaAmudgknYGetXifTD
+      - PLEX_CLAIM=
     devices:
       - /dev/dri:/dev/dri
       - /dev/nvidia0
