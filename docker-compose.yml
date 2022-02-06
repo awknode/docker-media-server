@@ -27,8 +27,8 @@ services:
 #              - utility
 #              - compute
     dns:
-      - 1.1.1.1
       - 1.0.0.1
+      - 1.1.1.1
     volumes:
       - ~/Projects/plex:/config
       - /vz:/vz
@@ -58,21 +58,6 @@ services:
 #            count: 1
 #            capabilities: [gpu, utility, compute]
 #
-#
-#  vpn:
-#    container_name: vpn
-#    image: dperson/openvpn-client:latest
-#    cap_add:
-#      - net_admin # required to modify network interfaces
-#    restart: unless-stopped
-#    volumes:
-#      - /dev/net:/dev/net:z # tun device
-#      - ~/Projects/plex/config/vpn:/vpn # OpenVPN configuration
-#    security_opt:
-#      - label:disable
-#    ports:
-#      - 8112:8112 # port for deluge web UI to be reachable from local network
-#    command: '-f "" -r 10.99.99.0/24' # enable firewall and route local network traffic
 
   wireguard:
     image: ghcr.io/linuxserver/wireguard
@@ -100,6 +85,8 @@ services:
     ports:
       - 8112:8112
       - 51802:51802/udp
+      - 6881:6881
+      - 3001:3001
     networks:
       mediabr:
         ipv4_address: 10.10.10.10
@@ -108,19 +95,47 @@ services:
       - net.ipv4.ip_forward=1
     restart: unless-stopped
 
-  deluge:
-    container_name: deluge
-    image: ghcr.io/linuxserver/deluge:latest
-    restart: always
-    network_mode: service:wireguard # run on the vpn network
+#  deluge:
+#    container_name: deluge
+#    image: ghcr.io/linuxserver/deluge:latest
+#    restart: always
+#    network_mode: service:wireguard # run on the vpn network
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Europe/London
+#    volumes:
+#      - ./downloads/torrent-blackhole:/blackhole
+#      - /dock/4/down:/downloads # downloads folder
+#      - ./config/deluge:/config # config files
+
+  flood:
+    image: jesec/flood
+    network_mode: service:wireguard
+    user: 1000:1001
+    restart: unless-stopped
+    command: --port 3001 --allowedpath /downloads
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
+      HOME: /config
     volumes:
-      - ./downloads/torrent-blackhole:/blackhole
-      - /dock/4/down:/downloads # downloads folder
-      - ./config/deluge:/config # config files
+      - ./config/rtorrent:/config
+      - /dock/4/down:/downloads
+#    ports:
+#      - 3001:3001
+
+  rtorrent:
+    image: jesec/rtorrent
+    network_mode: service:wireguard
+    user: 1000:1001
+    restart: unless-stopped
+    command: -o network.port_range.set=6881-6881,system.daemon.set=true
+    environment:
+      HOME: /config
+    volumes:
+      - ./config/rtorrent:/config
+      - /dock/4/down:/downloads
+#    ports:
+#      - 6881:6881
 
   sonarr:
     container_name: sonarr
@@ -135,7 +150,6 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./config/sonarr:/config # config files
       - /dock/2/TV:/tv1
-      - /dock/3/TV2:/tv2
       - /dock/4/TV3:/tv # tv shows folder
       - /dock/4/down:/downloads # download folder
 
@@ -154,23 +168,10 @@ services:
       - /dock/1/Movies:/movies1
       - /dock/3/Movies2:/movies2
       - /dock/4/Movies3:/movies3
-      - /dock/2/4K:/4K
+      - /dock/2/kids:/kids
       - /dock/3/4K2:/4K2
       - /dock/4/down:/downloads # download folder
       - /dock/4/Newest:/movies
-
-  prowlarr:
-    image: ghcr.io/linuxserver/prowlarr:develop
-    container_name: prowlarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-    volumes:
-      - ./config/prowlarr:/config
-    ports:
-      - 9696:9696
-    restart: unless-stopped
 
   lidarr:
     image: lscr.io/linuxserver/lidarr
@@ -184,9 +185,23 @@ services:
       - ./config:/config
       - /vz/Music/music:/music
       - /dock/4/Music2:/music2 #optional
-      - /dock/4/down/lidarr:/downloads #optional
+      - /dock/4/down:/downloads #optional
 #    ports:
 #      - 8686:8686
+    restart: unless-stopped
+
+  prowlarr:
+    image: linuxserver/prowlarr:develop
+    container_name: prowlarr
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ./config/prowlarr:/config
+#    ports:
+#      - 9696:9696
     restart: unless-stopped
 
   organizr:
@@ -202,6 +217,11 @@ services:
 #    ports:
 #      - 8081:8081
     restart: unless-stopped
+
+
+volumes:
+  portainer_data:
+    name: portainer_data
 
 networks:
   mediabr:
