@@ -12,7 +12,7 @@ For GPU passthrough, requirements are as needed at minimum:
 
 Follow the https://github.com/sebgl/htpc-download-box#readme instructions on getting the basics setup, he did a great job with documentation, why damage a good thing.
 
-gpu.sh will brute force gpu passthrough with the plex server. you'll want to mount it and run 
+gpu.sh will brute force gpu passthrough even without hardware acceleration enabled with the plex server (cost you plex pass). you'll want to mount it and run 
 
 <code>docker exec -it plex /config/gpu.sh</code>
 (as i do) or you can modify it to your liking.
