@@ -1,64 +1,5 @@
 version: "3.6"
 services:
-  plex:
-    container_name: plex
-    image: ghcr.io/linuxserver/plex
-    network_mode: host
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - VERSION=docker
-#      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-#      - NVIDIA_VISIBLE_DEVICES=all
-#      - NVIDIA_DRIVER_CAPABILITIES=all
-      - PLEX_CLAIM=
-    devices:
-      - /dev/dri:/dev/dri
-      - /dev/nvidia0
-      - /dev/nvidia-uvm
-      - /dev/nvidia-uvm-tools
-      - /dev/nvidiactl
-#    deploy:
-#      resources:
-#       reservations:
-#          devices:
-#            - capabilities:
-#              - gpu
-#              - utility
-#              - compute
-    dns:
-      - 1.0.0.1
-      - 1.1.1.1
-    volumes:
-      - ~/Projects/plex:/config
-      - /vz:/vz
-      - /dock/1:/dock1
-      - /dock/2:/dock2
-      - /dock/3:/dock3
-      - /dock/4:/dock4
-      - /dev/shm/plex:/plexcache
-    restart: always
-    privileged: yes
-
-#  cuda:
-#    image: nvidia/cuda:11.4.2-base-ubuntu20.04
-#    command: nvidia-smi
-#    runtime: nvidia
-#    restart: unless-stopped
-#    devices:
-#      - /dev/nvidia0
-#      - /dev/nvidia-uvm
-#      - /dev/nvidia-uvm-tools
-#      - /dev/nvidiactl
-#    deploy:
-#      resources:
-#        reservations:
-#          devices:
-#          - driver: nvidia
-#            count: 1
-#            capabilities: [gpu, utility, compute]
-#
-
   wireguard:
     image: ghcr.io/linuxserver/wireguard
     container_name: wireguard
@@ -86,30 +27,69 @@ services:
       - 8112:8112
       - 51802:51802/udp
       - 6881:6881
+      - 8089:8089
+      - 6882:6882
+      - 6882:6882/udp
+      - 9696:9696
       - 3001:3001
-    networks:
-      mediabr:
-        ipv4_address: 10.10.10.10
+      - 8989:8989
+      - 7878:7878
+#      - 8998:17442
+#      - 27017:27017
+      - 8686:8686
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
       - net.ipv4.ip_forward=1
     restart: unless-stopped
 
-#  deluge:
-#    container_name: deluge
-#    image: ghcr.io/linuxserver/deluge:latest
-#    restart: always
-#    network_mode: service:wireguard # run on the vpn network
-#    environment:
-#      - PUID=1000
-#      - PGID=1000
-#      - TZ=Europe/London
-#    volumes:
-#      - ./downloads/torrent-blackhole:/blackhole
-#      - /dock/4/down:/downloads # downloads folder
-#      - ./config/deluge:/config # config files
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+#      - JELLYFIN_PublishedServerUrl=192.168.0.5 #optional
+    volumes:
+      - ./config/jellyfin:/config
+      - /mnt/hgfs/Movies:/data/movies
+      - /mnt/hgfs/Movies2:/data/movies2
+      - /mnt/hgfs/Movies3:/data/movies3
+      - /mnt/hgfs/kids:/data/kids
+      - /mnt/hgfs/TV:/data/tv
+      - /mnt/hgfs/TV2:/data/tv2
+      - /mnt/hgfs/Music:/data/music
+      - /mnt/hgfs/Music2:/data/music2
+      - /mnt/hgfs/down:/data/downloads
+
+#    ports:
+#      - 8096:8096
+#      - 8920:8920 #optional
+#      - 7359:7359/udp #optional
+#      - 1900:1900/udp #optional
+    restart: unless-stopped
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: service:wireguard
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - WEBUI_PORT=8089
+    volumes:
+      - ./config/qbittorrent:/config
+      - /mnt/hgfs/down:/downloads
+#    ports:
+#      - 8089:8089
+#      - 6882:6882
+#      - 6882:6882/udp
+    restart: unless-stopped
 
   flood:
+    container_name: flood
     image: jesec/flood
     network_mode: service:wireguard
     user: 1000:1001
@@ -119,11 +99,12 @@ services:
       HOME: /config
     volumes:
       - ./config/rtorrent:/config
-      - /dock/4/down:/downloads
+      - /mount/hgfs/down:/downloads
 #    ports:
 #      - 3001:3001
 
   rtorrent:
+    container_name: rtorrent
     image: jesec/rtorrent
     network_mode: service:wireguard
     user: 1000:1001
@@ -133,7 +114,7 @@ services:
       HOME: /config
     volumes:
       - ./config/rtorrent:/config
-      - /dock/4/down:/downloads
+      - /mnt/hgfs/down:/downloads
 #    ports:
 #      - 6881:6881
 
@@ -141,7 +122,7 @@ services:
     container_name: sonarr
     image: ghcr.io/linuxserver/sonarr:latest
     restart: unless-stopped
-    network_mode: host
+    network_mode: service:wireguard
     environment:
       - PUID=1000
       - PGID=1000
@@ -149,15 +130,15 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./config/sonarr:/config # config files
-      - /dock/2/TV:/tv1
-      - /dock/4/TV3:/tv # tv shows folder
-      - /dock/4/down:/downloads # download folder
+      - /mnt/hgfs/TV:/tv1
+      - /mnt/hgfs/TV2:/tv # tv shows folder
+      - /mnt/hgfs/down:/downloads # download folder
 
   radarr:
     container_name: radarr
     image: ghcr.io/linuxserver/radarr:latest
     restart: unless-stopped
-    network_mode: host
+    network_mode: service:wireguard
     environment:
       - PUID=1000
       - PGID=1000
@@ -165,27 +146,26 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./config/radarr:/config # config files
-      - /dock/1/Movies:/movies1
-      - /dock/3/Movies2:/movies2
-      - /dock/4/Movies3:/movies3
-      - /dock/2/kids:/kids
-      - /dock/3/4K2:/4K2
-      - /dock/4/down:/downloads # download folder
-      - /dock/4/Newest:/movies
+      - /mnt/hgfs/Movies:/movies1
+      - /mnt/hgfs/Movies2:/movies2
+      - /mnt/hgfs/Movies3:/movies3
+      - /mnt/hgfs/kids:/kids
+      - /mnt/hgfs/4K:/4K
+      - /mnt/hgfs/down:/downloads # download folder
 
   lidarr:
     image: lscr.io/linuxserver/lidarr
     container_name: lidarr
-    network_mode: host
+    network_mode: service:wireguard
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/London
     volumes:
-      - ./config:/config
-      - /vz/Music/music:/music
-      - /dock/4/Music2:/music2 #optional
-      - /dock/4/down:/downloads #optional
+      - ./config/lidarr:/config
+      - /mnt/hgfs/Music:/music
+      - /mnt/hgfs/Music2:/music2 #optional
+      - /mnt/hgfs/down:/downloads #optional
 #    ports:
 #      - 8686:8686
     restart: unless-stopped
@@ -193,7 +173,7 @@ services:
   prowlarr:
     image: linuxserver/prowlarr:develop
     container_name: prowlarr
-    network_mode: host
+    network_mode: service:wireguard
     environment:
       - PUID=1000
       - PGID=1000
@@ -213,20 +193,41 @@ services:
       - PGID=1000
       - TZ=Europe/London
     volumes:
-      - ./config:/config
+      - ./config/organizr:/config
 #    ports:
 #      - 8081:8081
     restart: unless-stopped
 
+  ytdl_material:
+    container_name: ytdl
+#    network_mode: service:wireguard
+    environment:
+      ALLOW_CONFIG_MUTATIONS: 'true'
+      ytdl_mongodb_connection_string: 'mongodb://ytdl-mongo-db:27017'
+      ytdl_use_local_db: 'false'
+      write_ytdl_config: 'true'
+    restart: always
+    depends_on:
+      - ytdl-mongo-db
+    volumes:
+      - ./config/ytdl:/app/appdata
+      - /mnt/hgfs/down/ytdl/audio:/app/audio
+      - /mnt/hgfs/down/ytdl/video:/app/video
+      - /mnt/hgfs/down/ytdl/subscriptions:/app/subscriptions
+      - ./config/ytdl/users:/app/users
+    ports:
+      - 8998:17442
+    image: tzahi12345/youtubedl-material:latest
 
-volumes:
-  portainer_data:
-    name: portainer_data
-
-networks:
-  mediabr:
-    driver: bridge
-    ipam:
-     config:
-       - subnet: 10.10.10.0/24
-         gateway: 10.10.10.1
+  ytdl-mongo-db:
+#    network_mode: service:wireguard
+    container_name: ytdl-db
+    image: mongo
+    ports:
+      - 27017:27017
+    logging:
+      driver: "none"
+    container_name: mongo-db
+    restart: always
+    volumes:
+      - ./db/:/data/db
