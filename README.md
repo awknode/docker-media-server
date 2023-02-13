@@ -1,5 +1,5 @@
 # docker-media-server-htpc
-Docker / Wireguard Client / Rtorrent-flood / Prowlarr / Radarr / Sonarr / Lidarr / Overseerr / Organizr / NVIDIA GPU Passthrough (optional, #commented out) in one .yml file
+Docker / Wireguard Client / Rtorrent-flood / Prowlarr / Radarr / Sonarr / Lidarr / Overseerr / Organizr 
 
 I installed plex directly onto the VM in this instance.
 
