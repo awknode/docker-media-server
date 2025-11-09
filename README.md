@@ -5,7 +5,7 @@ I installed plex directly onto the VM in this instance
 
 Follow the https://github.com/sebgl/htpc-download-box#readme instructions on getting the basics setup, he did a great job with documentation, why damage a good thing
 
-gpu.sh will brute force gpu passthrough even without hardware acceleration enabled with the plex server (cost you plex pass). you'll want to mount it and run 
+gpu.sh will brute force gpu passthrough if you need it -- i no longer use it since plex is outside of the container 
 
 Docker proxy is only used / needed for my locally run home assistant, you can comment it out if you'd like
 
