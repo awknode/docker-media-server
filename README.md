@@ -1,5 +1,5 @@
 # docker-media-server-htpc
-Docker / Wireguard Client / Rtorrent-flood / Prowlarr / Radarr / Sonarr / Lidarr / Overseerr / Organizr / Docker Proxy
+Docker / Wireguard Client / Rtorrent-flood / Prowlarr / Radarr / Sonarr / Lidarr / Organizr / Portainer / Docker Proxy
 
 I installed plex directly onto the VM in this instance
 
@@ -21,7 +21,6 @@ In short, once this is up and running, just do the following:
 4. Radarr -- Load http://localhost:7878
 5. Lidarr -- load http://localhost:8686
 6. Prowlarr -- Load http://localhost:9696 (replacing Jackett)
-7. Overseerr -- Load http://localhost:5055
 8. Plex Media Server installation help -- Load https://support.plex.tv/articles/200288586-installation/
 
 Also very relevant to GPU passthrough: https://github.com/keylase/nvidia-patch <br>
