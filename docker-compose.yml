@@ -10,7 +10,7 @@ services:
       - DEBUG=1
       - PUID=1000
       - PGID=1000
-      - TZ=US/Arizona
+      - TZ=US/California
 #      - SERVERURL= #optional
 #      - SERVERPORT= #optional
 #      - PEERS=1 #optional
@@ -21,16 +21,19 @@ services:
       - ./config/wireguard/wg0.conf:/config/wg0.conf
       - /lib/modules:/lib/modules
     dns:
-      - 1.1.1.1
-      - 1.0.0.1
+      - 10.13.20.1
+      - 10.13.20.69
     ports:
       - 8112:8112
       - 51802:51802/udp
       - 6881:6881
+#      - 8081:8081
+      - 8086:8086
       - 8089:8089
       - 6882:6882
       - 6882:6882/udp
       - 9696:9696
+      - 5055:5055
       - 3001:3001
       - 8989:8989
       - 7878:7878
@@ -42,33 +45,26 @@ services:
       - net.ipv4.ip_forward=1
     restart: unless-stopped
 
-  jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
-    container_name: jellyfin
-    network_mode: host
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
+#  jellyfin:
+#    image: lscr.io/linuxserver/jellyfin:latest
+#    container_name: jellyfin
+#    network_mode: host
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Europe/London
 #      - JELLYFIN_PublishedServerUrl=192.168.0.5 #optional
-    volumes:
-      - ./config/jellyfin:/config
-      - /mnt/hgfs/Movies:/data/movies
-      - /mnt/hgfs/Movies2:/data/movies2
-      - /mnt/hgfs/Movies3:/data/movies3
-      - /mnt/hgfs/kids:/data/kids
-      - /mnt/hgfs/TV:/data/tv
-      - /mnt/hgfs/TV2:/data/tv2
-      - /mnt/hgfs/Music:/data/music
-      - /mnt/hgfs/Music2:/data/music2
-      - /mnt/hgfs/down:/data/downloads
-
+#    volumes:
+#      - ./config/jellyfin:/config
+#      - /media/HDD/Movies/:/data/Movies
+#      - /media/HDD/TV Shows:/data/TV
+#      - /media/HDD/down:/data/downloads
 #    ports:
 #      - 8096:8096
 #      - 8920:8920 #optional
 #      - 7359:7359/udp #optional
 #      - 1900:1900/udp #optional
-    restart: unless-stopped
+#    restart: unless-stopped
 
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
@@ -81,25 +77,49 @@ services:
       - WEBUI_PORT=8089
     volumes:
       - ./config/qbittorrent:/config
-      - /mnt/hgfs/down:/downloads
+      - /media/HDD/down:/downloads
+#      - /mnt/hgfs/down:/downloads
 #    ports:
 #      - 8089:8089
 #      - 6882:6882
 #      - 6882:6882/udp
     restart: unless-stopped
 
+
+  deluge:
+    image: lscr.io/linuxserver/deluge:latest
+    container_name: deluge
+    network_mode: service:wireguard
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - DELUGE_LOGLEVEL=error #optional
+    volumes:
+      - ./config/deluge:/config
+      - /media/HDD/down:/downloads
+#    ports:
+#      - 8112:8112
+#      - 6881:6881
+#      - 6881:6881/udp
+#      - 58846:58846 #optional
+    restart: unless-stopped
+
   flood:
     container_name: flood
     image: jesec/flood
     network_mode: service:wireguard
-    user: 1000:1001
+    user: 1000:1000
     restart: unless-stopped
     command: --port 3001 --allowedpath /downloads
+    depends_on:
+      - rtorrent
     environment:
       HOME: /config
+      RTORRENT_SOCK: /config/.local/share/rtorrent/rtorrent.sock
     volumes:
       - ./config/rtorrent:/config
-      - /mount/hgfs/down:/downloads
+      - /media/HDD/down:/downloads
 #    ports:
 #      - 3001:3001
 
@@ -107,16 +127,33 @@ services:
     container_name: rtorrent
     image: jesec/rtorrent
     network_mode: service:wireguard
-    user: 1000:1001
+    user: 1000:1000
     restart: unless-stopped
     command: -o network.port_range.set=6881-6881,system.daemon.set=true
     environment:
       HOME: /config
+      RTORRENT_SOCK: /config/.local/share/rtorrent/rtorrent.sock
     volumes:
       - ./config/rtorrent:/config
-      - /mnt/hgfs/down:/downloads
+      - /media/HDD/down:/downloads
 #    ports:
 #      - 6881:6881
+
+  unpackerr:
+    image: ghcr.io/hotio/unpackerr
+    container_name: unpackerr
+    network_mode: service:wireguard
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - ./config/unpackerr:/config
+      - /media/HDD/down:/downloads
+      - /media/HDD/Movies:/movies
+#    ports:
+#      - 8086:8086
+    restart: unless-stopped
 
   sonarr:
     container_name: sonarr
@@ -130,9 +167,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./config/sonarr:/config # config files
-      - /mnt/hgfs/TV:/tv1
-      - /mnt/hgfs/TV2:/tv # tv shows folder
-      - /mnt/hgfs/down:/downloads # download folder
+      - /media/HDD/TV Shows/:/tvshows
+      - /media/HDD/down:/downloads # download folder
 
   radarr:
     container_name: radarr
@@ -146,12 +182,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./config/radarr:/config # config files
-      - /mnt/hgfs/Movies:/movies1
-      - /mnt/hgfs/Movies2:/movies2
-      - /mnt/hgfs/Movies3:/movies3
-      - /mnt/hgfs/kids:/kids
-      - /mnt/hgfs/4K:/4K
-      - /mnt/hgfs/down:/downloads # download folder
+      - /media/HDD/Movies:/movies
+      - /media/HDD/down:/downloads # download folder
 
   lidarr:
     image: lscr.io/linuxserver/lidarr
@@ -163,9 +195,9 @@ services:
       - TZ=Europe/London
     volumes:
       - ./config/lidarr:/config
-      - /mnt/hgfs/Music:/music
-      - /mnt/hgfs/Music2:/music2 #optional
-      - /mnt/hgfs/down:/downloads #optional
+      - /media/SSD/music:/music-nas
+      - /media/SSD/music2:/music2-nas
+      - /media/HDD/down:/downloads #optional
 #    ports:
 #      - 8686:8686
     restart: unless-stopped
@@ -184,6 +216,20 @@ services:
 #      - 9696:9696
     restart: unless-stopped
 
+  overseerr:
+    image: lscr.io/linuxserver/overseerr:latest
+    container_name: overseerr
+    network_mode: service:wireguard
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ./config/overseer:/config
+#    ports:
+#      - 5055:5055
+    restart: unless-stopped
+
   organizr:
     image: organizr/organizr
     container_name: organizr
@@ -200,29 +246,35 @@ services:
 
   ytdl_material:
     container_name: ytdl
-#    network_mode: service:wireguard
+#    network_mode: host
     environment:
       ALLOW_CONFIG_MUTATIONS: 'true'
       ytdl_mongodb_connection_string: 'mongodb://ytdl-mongo-db:27017'
       ytdl_use_local_db: 'false'
       write_ytdl_config: 'true'
     restart: always
+    environment:
+      - PUID=1000
+      - PGID=1000
     depends_on:
       - ytdl-mongo-db
     volumes:
       - ./config/ytdl:/app/appdata
-      - /mnt/hgfs/down/ytdl/audio:/app/audio
-      - /mnt/hgfs/down/ytdl/video:/app/video
-      - /mnt/hgfs/down/ytdl/subscriptions:/app/subscriptions
+      - /media/HDD/down/ytdl/audio:/app/audio
+      - /media/HDD/down/ytdl/video:/app/video
+      - /media/HDD/down/ytdl/subscriptions:/app/subscriptions
       - ./config/ytdl/users:/app/users
     ports:
       - 8998:17442
     image: tzahi12345/youtubedl-material:latest
 
   ytdl-mongo-db:
-#    network_mode: service:wireguard
+#    network_mode: host
     container_name: ytdl-db
     image: mongo
+    environment:
+      - PUID=1000
+      - PGID=1000
     ports:
       - 27017:27017
     logging:
@@ -231,3 +283,42 @@ services:
     restart: always
     volumes:
       - ./db/:/data/db
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    network_mode: host
+#    ports:
+#      - 9443:9443
+    volumes:
+      - portainer_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+  dockerproxy:
+    image: tecnativa/docker-socket-proxy
+    container_name: dockerproxy
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 2375:2375
+    environment:
+      - BUILD=1
+      - COMMIT=1
+      - CONFIGS=1
+      - CONTAINERS=1
+      - DISTRIBUTION=1
+      - EXEC=1
+      - IMAGES=1
+      - INFO=1
+      - NETWORKS=1
+      - NODES=1
+      - PLUGINS=1
+      - SERVICES=1
+      - SESSSION=1
+      - SWARM=1
+      - POST=1
+
+volumes:
+  portainer_data:
