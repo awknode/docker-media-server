@@ -1,5 +1,5 @@
 # docker-media-server-htpc
-Docker / Wireguard Client / Rtorrent-flood / Prowlarr / Radarr / Sonarr / Lidarr / Organizr / Portainer / Docker Proxy
+Wireguard Client / Rtorrent-flood / Deluge / Prowlarr / Radarr / Sonarr / Lidarr / Organizr / Portainer / Docker Proxy
 
 I installed plex directly onto the VM in this instance
 
