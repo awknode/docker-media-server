@@ -12,7 +12,7 @@ Docker proxy is only used / needed for my locally run home assistant, you can co
 <code>docker exec -it plex /config/gpu.sh</code>
 (as i do) or you can modify it to your liking.
 
-This is great for a LAN, as all your data is encrypted with wireguard (refer to networks: service:wireguard). 
+This is great for a LAN, as all your data is encrypted with wireguard (refer to networks: service:wireguard)
 
 In short, once this is up and running, just do the following:
 1. Open up your favorite browser
