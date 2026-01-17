@@ -78,7 +78,6 @@ services:
     volumes:
       - ./config/qbittorrent:/config
       - /media/HDD/down:/downloads
-#      - /mnt/hgfs/down:/downloads
 #    ports:
 #      - 8089:8089
 #      - 6882:6882
@@ -248,14 +247,13 @@ services:
     container_name: ytdl
 #    network_mode: host
     environment:
+      PUID: '1000'
+      PGID: '1000
       ALLOW_CONFIG_MUTATIONS: 'true'
       ytdl_mongodb_connection_string: 'mongodb://ytdl-mongo-db:27017'
       ytdl_use_local_db: 'false'
       write_ytdl_config: 'true'
     restart: always
-    environment:
-      - PUID=1000
-      - PGID=1000
     depends_on:
       - ytdl-mongo-db
     volumes:
@@ -319,6 +317,7 @@ services:
       - SESSSION=1
       - SWARM=1
       - POST=1
+    restart: unless-stopped  
 
 volumes:
   portainer_data:
