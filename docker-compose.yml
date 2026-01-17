@@ -248,7 +248,7 @@ services:
 #    network_mode: host
     environment:
       PUID: '1000'
-      PGID: '1000
+      PGID: '1000'
       ALLOW_CONFIG_MUTATIONS: 'true'
       ytdl_mongodb_connection_string: 'mongodb://ytdl-mongo-db:27017'
       ytdl_use_local_db: 'false'
